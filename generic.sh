@@ -1,10 +1,12 @@
 #!/bin/sh
 
+TYPE='generic'
+#TYPE='alternative'
+
 unset LD_LIBRARY_PATH
 unset LD_PRELOAD
 
 echo 'Info: Checking for prerequisites and creating folders...'
-
 if [ -d /opt ]; then
     echo 'Warning: Folder /opt exists!'
 else
@@ -39,22 +41,35 @@ ln -s libpthread-2.27.so libpthread.so.0
 
 echo 'Info: Basic packages installation...'
 /opt/bin/opkg update
+if [ $TYPE = 'alternative' ]; then
+  /opt/bin/opkg install busybox
+fi
 /opt/bin/opkg install entware-opt
 
 # Fix for multiuser environment
 chmod 777 /opt/tmp
 
-# now try create symlinks - it is a std installation
 for file in passwd group shells shadow gshadow localtime; do
-  if [ -f /etc/$file ]; then
-    ln -sf /etc/$file /opt/etc/$file
+  if [ $TYPE = 'generic' ]; then
+    if [ -f /etc/$file ]; then
+      ln -sf /etc/$file /opt/etc/$file
+    else
+      [ -f /opt/etc/$file.1 ] && cp /opt/etc/$file.1 /opt/etc/$file
+    fi
   else
-    [ -f /opt/etc/$file.1 ] && cp /opt/etc/$file.1 /opt/etc/$file
+    if [ -f /opt/etc/$file.1 ]; then
+      cp /opt/etc/$file.1 /opt/etc/$file
+    else
+      [ -f /etc/$file ] && ln -sf /etc/$file /opt/etc/$file
+    fi
   fi
 done
 
 echo 'Info: Congratulations!'
 echo 'Info: If there are no errors above then Entware was successfully initialized.'
 echo 'Info: Add /opt/bin & /opt/sbin to $PATH variable'
-echo "Info: Add '/opt/etc/init.d/rc.unslung start' to startup script for Entware services to start"
+echo 'Info: Add "/opt/etc/init.d/rc.unslung start" to startup script for Entware services to start'
+if [ $TYPE = 'alternative' ]; then
+  echo 'Info: Use ssh server from Entware for better compatibility.'
+fi
 echo 'Info: Found a Bug? Please report at https://github.com/Entware/Entware/issues'
