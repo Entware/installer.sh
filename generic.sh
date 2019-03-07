@@ -45,41 +45,13 @@ echo 'Info: Basic packages installation...'
 chmod 777 /opt/tmp
 
 # now try create symlinks - it is a std installation
-if [ -f /etc/passwd ]
-then
-    ln -sf /etc/passwd /opt/etc/passwd
-else
-    cp /opt/etc/passwd.1 /opt/etc/passwd
-fi
-
-if [ -f /etc/group ]
-then
-    ln -sf /etc/group /opt/etc/group
-else
-    cp /opt/etc/group.1 /opt/etc/group
-fi
-
-if [ -f /etc/shells ]
-then
-    ln -sf /etc/shells /opt/etc/shells
-else
-    cp /opt/etc/shells.1 /opt/etc/shells
-fi
-
-if [ -f /etc/shadow ]
-then
-    ln -sf /etc/shadow /opt/etc/shadow
-fi
-
-if [ -f /etc/gshadow ]
-then
-    ln -sf /etc/gshadow /opt/etc/gshadow
-fi
-
-if [ -f /etc/localtime ]
-then
-    ln -sf /etc/localtime /opt/etc/localtime
-fi
+for file in passwd group shells shadow gshadow localtime; do
+  if [ -f /etc/$file ]; then
+    ln -sf /etc/$file /opt/etc/$file
+  else
+    [ -f /opt/etc/$file.1 ] && cp /opt/etc/$file.1 /opt/etc/$file
+  fi
+done
 
 echo 'Info: Congratulations!'
 echo 'Info: If there are no errors above then Entware was successfully initialized.'
