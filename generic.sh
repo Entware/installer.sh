@@ -3,29 +3,27 @@
 unset LD_LIBRARY_PATH
 unset LD_PRELOAD
 
-echo "Info: Checking for prerequisites and creating folders..."
+echo 'Info: Checking for prerequisites and creating folders...'
 
-if [ -d /opt ]
-then
-    echo "Warning: Folder /opt exists!"
+if [ -d /opt ]; then
+    echo 'Warning: Folder /opt exists!'
 else
     mkdir /opt
 fi
 # no need to create many folders. entware-opt package creates most
 for folder in bin etc lib/opkg tmp var/lock
 do
-  if [ -d "/opt/$folder" ]
-  then
+  if [ -d "/opt/$folder" ]; then
     echo "Warning: Folder /opt/$folder exists!"
-    echo "Warning: If something goes wrong please clean /opt folder and try again."
+    echo 'Warning: If something goes wrong please clean /opt folder and try again.'
   else
     mkdir -p /opt/$folder
   fi
 done
 
-echo "Info: Opkg package manager deployment..."
-DLOADER="ld.so.1"
-URL=http://bin.entware.net/mipselsf-k3.4/installer
+echo 'Info: Opkg package manager deployment...'
+DLOADER='ld.so.1'
+URL='http://bin.entware.net/mipselsf-k3.4/installer'
 wget $URL/opkg -O /opt/bin/opkg
 chmod 755 /opt/bin/opkg
 wget $URL/opkg.conf -O /opt/etc/opkg.conf
@@ -39,7 +37,7 @@ ln -s ld-2.27.so $DLOADER
 ln -s libc-2.27.so libc.so.6
 ln -s libpthread-2.27.so libpthread.so.0
 
-echo "Info: Basic packages installation..."
+echo 'Info: Basic packages installation...'
 /opt/bin/opkg update
 /opt/bin/opkg install entware-opt
 
@@ -83,8 +81,8 @@ then
     ln -sf /etc/localtime /opt/etc/localtime
 fi
 
-echo "Info: Congratulations!"
-echo "Info: If there are no errors above then Entware was successfully initialized."
-echo "Info: Add /opt/bin & /opt/sbin to your PATH variable"
+echo 'Info: Congratulations!'
+echo 'Info: If there are no errors above then Entware was successfully initialized.'
+echo 'Info: Add /opt/bin & /opt/sbin to $PATH variable'
 echo "Info: Add '/opt/etc/init.d/rc.unslung start' to startup script for Entware services to start"
-echo "Info: Found a Bug? Please report at https://github.com/Entware/Entware/issues"
+echo 'Info: Found a Bug? Please report at https://github.com/Entware/Entware/issues'
