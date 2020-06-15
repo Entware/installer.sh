@@ -1,10 +1,20 @@
 #!/bin/sh
 
-TYPE='generic'
-#TYPE='alternative'
+#TYPE='generic'
+TYPE='alternative'
+
+#|---------|-----------------------|---------------|---------------|---------------------|-------------------|-------------------|----------------------|-------------------|
+#| ARCH    | aarch64-k3.10         | armv5sf-k3.2  | armv7sf-k2.6  | armv7sf-k3.2        | mipselsf-k3.4     | mipssf-k3.4       | x64-k3.2             | x86-k2.6          |
+#| LOADER  | ld-linux-aarch64.so.1 | ld-linux.so.3 | ld-linux.so.3 | ld-linux.so.3       | ld.so.1           | ld.so.1           | ld-linux-x86-64.so.2 | ld-linux.so.2     |
+#| GLIBC   | 2.27                  | 2.27          | 2.23          | 2.27                | 2.27              | 2.27              | 2.27                 | 2.23              |
+#|---------|-----------------------|---------------|---------------|---------------------|-------------------|-------------------|----------------------|-------------------|
 
 unset LD_LIBRARY_PATH
 unset LD_PRELOAD
+
+ARCH=x86-k2.6
+LOADER=ld-linux.so.2
+GLIBC=2.23
 
 echo 'Info: Checking for prerequisites and creating folders...'
 if [ -d /opt ]; then
@@ -24,20 +34,19 @@ do
 done
 
 echo 'Info: Opkg package manager deployment...'
-DLOADER='ld.so.1'
-URL='http://bin.entware.net/mipselsf-k3.4/installer'
+URL=http://bin.entware.net/${ARCH}/installer
 wget $URL/opkg -O /opt/bin/opkg
 chmod 755 /opt/bin/opkg
 wget $URL/opkg.conf -O /opt/etc/opkg.conf
-wget $URL/ld-2.27.so -O /opt/lib/ld-2.27.so
-wget $URL/libc-2.27.so -O /opt/lib/libc-2.27.so
+wget $URL/ld-${GLIBC}.so -O /opt/lib/ld-${GLIBC}.so
+wget $URL/libc-${GLIBC}.so -O /opt/lib/libc-${GLIBC}.so
 wget $URL/libgcc_s.so.1 -O /opt/lib/libgcc_s.so.1
-wget $URL/libpthread-2.27.so -O /opt/lib/libpthread-2.27.so
+wget $URL/libpthread-${GLIBC}.so -O /opt/lib/libpthread-${GLIBC}.so
 cd /opt/lib
-chmod 755 ld-2.27.so
-ln -s ld-2.27.so $DLOADER
-ln -s libc-2.27.so libc.so.6
-ln -s libpthread-2.27.so libpthread.so.0
+chmod 755 ld-${GLIBC}.so
+ln -s ld-${GLIBC}.so $LOADER
+ln -s libc-${GLIBC}.so libc.so.6
+ln -s libpthread-${GLIBC}.so libpthread.so.0
 
 echo 'Info: Basic packages installation...'
 /opt/bin/opkg update
@@ -49,7 +58,7 @@ fi
 # Fix for multiuser environment
 chmod 777 /opt/tmp
 
-for file in passwd group shells shadow gshadow localtime; do
+for file in passwd group shells shadow gshadow; do
   if [ $TYPE = 'generic' ]; then
     if [ -f /etc/$file ]; then
       ln -sf /etc/$file /opt/etc/$file
@@ -59,11 +68,11 @@ for file in passwd group shells shadow gshadow localtime; do
   else
     if [ -f /opt/etc/$file.1 ]; then
       cp /opt/etc/$file.1 /opt/etc/$file
-    else
-      [ -f /etc/$file ] && ln -sf /etc/$file /opt/etc/$file
     fi
   fi
 done
+
+[ -f /etc/localtime ] && ln -sf /etc/localtime /opt/etc/localtime
 
 echo 'Info: Congratulations!'
 echo 'Info: If there are no errors above then Entware was successfully initialized.'
