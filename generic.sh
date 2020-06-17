@@ -38,15 +38,6 @@ URL=http://bin.entware.net/${ARCH}/installer
 wget $URL/opkg -O /opt/bin/opkg
 chmod 755 /opt/bin/opkg
 wget $URL/opkg.conf -O /opt/etc/opkg.conf
-wget $URL/ld-${GLIBC}.so -O /opt/lib/ld-${GLIBC}.so
-wget $URL/libc-${GLIBC}.so -O /opt/lib/libc-${GLIBC}.so
-wget $URL/libgcc_s.so.1 -O /opt/lib/libgcc_s.so.1
-wget $URL/libpthread-${GLIBC}.so -O /opt/lib/libpthread-${GLIBC}.so
-cd /opt/lib
-chmod 755 ld-${GLIBC}.so
-ln -s ld-${GLIBC}.so $LOADER
-ln -s libc-${GLIBC}.so libc.so.6
-ln -s libpthread-${GLIBC}.so libpthread.so.0
 
 echo 'Info: Basic packages installation...'
 /opt/bin/opkg update
